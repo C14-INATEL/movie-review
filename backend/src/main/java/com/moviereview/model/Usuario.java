@@ -1,20 +1,29 @@
-package com.projeto.model;
+package com.moviereview.model;
 
 public class Usuario {
 
     private Long id;
     private String nome;
     private String email;
+    private String senha;
 
     // Construtor vazio
     public Usuario() {
     }
 
+    // Construtor com nome, email e senha
+    public Usuario(String nome, String email, String senha) {
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
+    }
+
     // Construtor completo
-    public Usuario(Long id, String nome, String email) {
+    public Usuario(Long id, String nome, String email, String senha) {
         this.id = id;
         this.nome = nome;
         this.email = email;
+        this.senha = senha;
     }
 
     // Getter e Setter do id
@@ -42,5 +51,14 @@ public class Usuario {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    // Getter e Setter da senha
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }
