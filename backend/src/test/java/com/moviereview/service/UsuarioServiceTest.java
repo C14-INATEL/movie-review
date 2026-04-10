@@ -62,6 +62,17 @@ class UsuarioServiceTest {
     }
 
     @Test
+    void deveCadastrarUsuarioPreservandoTodosOsDados() {
+        Usuario usuario = new Usuario("João", "joao@email.com", "senha123");
+
+        Usuario cadastrado = usuarioService.cadastrar(usuario);
+
+        assertEquals("João", cadastrado.getNome());
+        assertEquals("joao@email.com", cadastrado.getEmail());
+        assertEquals("senha123", cadastrado.getSenha());
+    }
+
+    @Test
     void deveListarTodosOsUsuariosCadastrados() {
         usuarioService.cadastrar(new Usuario("João", "joao@email.com", "senha123"));
         usuarioService.cadastrar(new Usuario("Maria", "maria@email.com", "senha456"));
@@ -76,5 +87,24 @@ class UsuarioServiceTest {
         List<Usuario> lista = usuarioService.listarTodos();
 
         assertTrue(lista.isEmpty());
+    }
+
+    @Test
+    void listarTodosDeveRetornarCopiaDefensiva() {
+        usuarioService.cadastrar(new Usuario("João", "joao@email.com", "senha123"));
+
+        List<Usuario> lista = usuarioService.listarTodos();
+        lista.clear();
+
+        assertEquals(1, usuarioService.listarTodos().size());
+    }
+
+    @Test
+    void deveCadastrarVariosUsuariosComEmailsDiferentes() {
+        usuarioService.cadastrar(new Usuario("João", "joao@email.com", "senha123"));
+        usuarioService.cadastrar(new Usuario("Maria", "maria@email.com", "senha456"));
+        usuarioService.cadastrar(new Usuario("Carlos", "carlos@email.com", "senha789"));
+
+        assertEquals(3, usuarioService.listarTodos().size());
     }
 }
