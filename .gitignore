@@ -51,3 +51,7 @@ frontend/.parcel-cache/
 
 # Spring Boot
 spring-boot-*.jar
+
+#AI
+.claude
+CLAUDE.md
