@@ -1,9 +1,15 @@
 import java.util.Scanner;
 
+import service.FilmeService;
 public class Menu {
     private Scanner leitor = new Scanner(System.in);
+    
+    private FilmeService filmeService;
 
-    // Método que será o alvo dos 4 testes unitários da Tarefa 3
+    public Menu(FilmeService filmeService) {
+        this.filmeService = filmeService;
+    }
+
     public boolean validarOpcao(int opcao) {
         return opcao >= 0 && opcao <= 4;
     }
@@ -12,7 +18,7 @@ public class Menu {
         int escolha = -1;
         while (escolha != 0) {
             System.out.println("\n=======================================");
-            System.out.println("       MOVIE REVIEW SYSTEM - C14       ");
+            System.out.println("      MOVIE REVIEW SYSTEM - C14        ");
             System.out.println("=======================================");
             System.out.println("  [1] Listar Catálogo de Filmes");
             System.out.println("  [2] Cadastrar Novo Usuário");
@@ -46,10 +52,10 @@ public class Menu {
             leitor.nextLine();
         }
     }
-
-    // Método principal para você conseguir RODAR o código no VS Code
     public static void main(String[] args) {
-        Menu meuMenu = new Menu();
+        // Criamos o serviço real aqui para o sistema funcionar normalmente
+        FilmeService fs = new FilmeService(); 
+        Menu meuMenu = new Menu(fs);
         meuMenu.exibirMenu();
     }
 }
