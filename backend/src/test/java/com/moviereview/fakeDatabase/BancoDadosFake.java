@@ -1,4 +1,4 @@
-package com.moviereview.repository;
+package com.moviereview.fakeDatabase;
 
 import com.moviereview.model.Usuario;
 import com.moviereview.model.Filme;
