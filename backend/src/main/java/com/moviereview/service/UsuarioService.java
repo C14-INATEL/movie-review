@@ -22,6 +22,10 @@ public class UsuarioService {
                 .anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
     }
 
+    public boolean existe(Usuario usuario) {
+        return usuarios.contains(usuario);
+    }
+
     public List<Usuario> listarTodos() {
         return new ArrayList<>(usuarios);
     }

@@ -5,21 +5,26 @@ import com.moviereview.model.Filme;
 import com.moviereview.model.Usuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 class AvaliacaoServiceTest {
 
     private AvaliacaoService avaliacaoService;
+    private UsuarioService usuarioService;
     private Usuario usuario;
     private Filme filme;
 
     @BeforeEach
     void setUp() {
-        avaliacaoService = new AvaliacaoService();
+        usuarioService = new UsuarioService();
+        avaliacaoService = new AvaliacaoService(usuarioService);
         usuario = new Usuario("João", "joao@email.com", "senha123");
+        usuarioService.cadastrar(usuario);
         filme = new Filme("Matrix", "Wachowski", 1999);
     }
 
@@ -77,6 +82,7 @@ class AvaliacaoServiceTest {
     @Test
     void deveListarAvaliacoesPorFilme() {
         Usuario outroUsuario = new Usuario("Maria", "maria@email.com", "senha456");
+        usuarioService.cadastrar(outroUsuario);
 
         avaliacaoService.avaliar(usuario, filme, 5);
         avaliacaoService.avaliar(outroUsuario, filme, 3);
@@ -89,6 +95,7 @@ class AvaliacaoServiceTest {
     @Test
     void deveCalcularMediaDasNotas() {
         Usuario outroUsuario = new Usuario("Maria", "maria@email.com", "senha456");
+        usuarioService.cadastrar(outroUsuario);
 
         avaliacaoService.avaliar(usuario, filme, 4);
         avaliacaoService.avaliar(outroUsuario, filme, 2);
@@ -115,5 +122,28 @@ class AvaliacaoServiceTest {
         avaliacaoService.avaliar(usuario, filme, 3);
 
         assertTrue(avaliacaoService.jaAvaliou(usuario, filme));
+    }
+
+    @Test
+    void deveLancarExcecaoSeUsuarioNaoExisteAoAvaliar() {
+        UsuarioService usuarioServiceMock = Mockito.mock(UsuarioService.class);
+        when(usuarioServiceMock.existe(usuario)).thenReturn(false);
+        AvaliacaoService service = new AvaliacaoService(usuarioServiceMock);
+
+        assertThrows(IllegalArgumentException.class, () -> service.avaliar(usuario, filme, 5));
+    }
+
+    @Test
+    void deveRegistrarAvaliacaoQuandoUsuarioExiste() {
+        UsuarioService usuarioServiceMock = Mockito.mock(UsuarioService.class);
+        when(usuarioServiceMock.existe(usuario)).thenReturn(true);
+        AvaliacaoService service = new AvaliacaoService(usuarioServiceMock);
+
+        Avaliacao avaliacao = service.avaliar(usuario, filme, 5);
+
+        assertNotNull(avaliacao);
+        assertEquals(usuario, avaliacao.getUsuario());
+        assertEquals(filme, avaliacao.getFilme());
+        assertEquals(5, avaliacao.getNota());
     }
 }
