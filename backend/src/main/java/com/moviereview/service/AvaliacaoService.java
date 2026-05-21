@@ -10,10 +10,18 @@ import java.util.stream.Collectors;
 
 public class AvaliacaoService {
 
+    private final UsuarioService usuarioService;
     private final List<Avaliacao> avaliacoes = new ArrayList<>();
     private Long proximoId = 1L;
 
+    public AvaliacaoService(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
+
     public Avaliacao avaliar(Usuario usuario, Filme filme, int nota) {
+        if (!usuarioService.existe(usuario)) {
+            throw new IllegalArgumentException("Usuário não encontrado.");
+        }
         if (nota < 1 || nota > 5) {
             throw new IllegalArgumentException("A nota deve ser entre 1 e 5.");
         }
