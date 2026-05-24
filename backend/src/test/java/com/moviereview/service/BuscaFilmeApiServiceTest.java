@@ -21,7 +21,7 @@ public class BuscaFilmeApiServiceTest {
 
     @Test
     void deveBuscarFilmePorTituloNaApiExterna() {
-        Filme filmeEsperado = new Filme(1L, "Inception", "Christopher Nolan", 2010);
+        Filme filmeEsperado = new Filme("Inception", "Christopher Nolan", 2010);
         when(apiClientMock.buscarPorTitulo("Inception")).thenReturn(filmeEsperado);
 
         Filme resultado = service.buscar("Inception");
