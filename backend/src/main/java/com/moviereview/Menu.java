@@ -1,7 +1,9 @@
+package com.moviereview;
+
 import java.util.Scanner;
 
 public class Menu {
-    private Scanner leitor = new Scanner(System.in);
+    private final Scanner leitor = new Scanner(System.in);
 
     public void exibirOpcoes() {
         System.out.println("--- SISTEMA DE FILMES (GRUPO C14) ---");
@@ -11,7 +13,7 @@ public class Menu {
         System.out.println("4 - Ver Ranking de Notas");
         System.out.println("0 - Sair");
         System.out.print("Digite a opção: ");
-        
+
         int escolha = leitor.nextInt();
         System.out.println("Opção " + escolha + " selecionada. (Em desenvolvimento)");
     }
