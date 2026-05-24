@@ -7,18 +7,15 @@ import com.moviereview.model.Avaliacao;
 import java.util.ArrayList;
 import java.util.List;
 
-//Classe que simula um banco de dados em memória usando ArrayLists.
-
+// Classe que simula um banco de dados em memória usando ArrayLists.
 public class BancoDadosFake {
 
-    // Listas que simulam as "tabelas" do banco de dados
-    private static List<Usuario> usuarios = new ArrayList<>();
-    private static List<Filme> filmes = new ArrayList<>();
-    private static List<Avaliacao> avaliacoes = new ArrayList<>();
-
+    private static final List<Usuario> usuarios = new ArrayList<>();
+    private static final List<Filme> filmes = new ArrayList<>();
+    private static final List<Avaliacao> avaliacoes = new ArrayList<>();
 
     public static List<Usuario> getUsuarios() {
-        return usuarios;
+        return new ArrayList<>(usuarios);
     }
 
     public static void adicionarUsuario(Usuario usuario) {
@@ -30,7 +27,7 @@ public class BancoDadosFake {
     }
 
     public static List<Filme> getFilmes() {
-        return filmes;
+        return new ArrayList<>(filmes);
     }
 
     public static void adicionarFilme(Filme filme) {
@@ -42,7 +39,7 @@ public class BancoDadosFake {
     }
 
     public static List<Avaliacao> getAvaliacoes() {
-        return avaliacoes;
+        return new ArrayList<>(avaliacoes);
     }
 
     public static void adicionarAvaliacao(Avaliacao avaliacao) {
