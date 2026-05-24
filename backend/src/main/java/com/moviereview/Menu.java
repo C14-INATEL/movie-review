@@ -1,11 +1,14 @@
+package com.moviereview;
+
 import java.util.Scanner;
 
 import service.FilmeService;
+
 public class Menu {
     private Scanner leitor = new Scanner(System.in);
-    
     private FilmeService filmeService;
 
+    // Construtor necessário para receber o Mock do teste
     public Menu(FilmeService filmeService) {
         this.filmeService = filmeService;
     }
@@ -52,6 +55,7 @@ public class Menu {
             leitor.nextLine();
         }
     }
+
     public static void main(String[] args) {
         // Criamos o serviço real aqui para o sistema funcionar normalmente
         FilmeService fs = new FilmeService(); 
