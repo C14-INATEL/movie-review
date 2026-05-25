@@ -2,19 +2,64 @@ package com.moviereview;
 
 import java.util.Scanner;
 
+import service.FilmeService;
+
 public class Menu {
-    private final Scanner leitor = new Scanner(System.in);
+    private Scanner leitor = new Scanner(System.in);
+    private FilmeService filmeService;
 
-    public void exibirOpcoes() {
-        System.out.println("--- SISTEMA DE FILMES (GRUPO C14) ---");
-        System.out.println("1 - Listar Catálogo");
-        System.out.println("2 - Cadastrar Usuário");
-        System.out.println("3 - Avaliar um Filme");
-        System.out.println("4 - Ver Ranking de Notas");
-        System.out.println("0 - Sair");
-        System.out.print("Digite a opção: ");
+    // Construtor necessário para receber o Mock do teste
+    public Menu(FilmeService filmeService) {
+        this.filmeService = filmeService;
+    }
 
-        int escolha = leitor.nextInt();
-        System.out.println("Opção " + escolha + " selecionada. (Em desenvolvimento)");
+    public boolean validarOpcao(int opcao) {
+        return opcao >= 0 && opcao <= 4;
+    }
+
+    public void exibirMenu() {
+        int escolha = -1;
+        while (escolha != 0) {
+            System.out.println("\n=======================================");
+            System.out.println("      MOVIE REVIEW SYSTEM - C14        ");
+            System.out.println("=======================================");
+            System.out.println("  [1] Listar Catálogo de Filmes");
+            System.out.println("  [2] Cadastrar Novo Usuário");
+            System.out.println("  [3] Avaliar um Filme");
+            System.out.println("  [4] Ver Ranking de Notas");
+            System.out.println("  [0] Sair do Sistema");
+            System.out.println("=======================================");
+            System.out.print(">> Escolha uma opção: ");
+
+            try {
+                String entrada = leitor.nextLine();
+                escolha = Integer.parseInt(entrada);
+
+                if (validarOpcao(escolha)) {
+                    processarAcao(escolha);
+                } else {
+                    System.out.println("\n[!] ERRO: Opção inválida (digite de 0 a 4).");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("\n[!] ERRO: Por favor, digite apenas números inteiros.");
+            }
+        }
+    }
+
+    private void processarAcao(int opcao) {
+        if (opcao == 0) {
+            System.out.println("\nEncerrando sistema... Até logo!");
+        } else {
+            System.out.println("\n[Aviso] Você acessou a funcionalidade " + opcao);
+            System.out.println("Pressione ENTER para voltar ao menu...");
+            leitor.nextLine();
+        }
+    }
+
+    public static void main(String[] args) {
+        // Criamos o serviço real aqui para o sistema funcionar normalmente
+        FilmeService fs = new FilmeService(); 
+        Menu meuMenu = new Menu(fs);
+        meuMenu.exibirMenu();
     }
 }
