@@ -17,4 +17,11 @@ public class Avaliacao {
     public Usuario getUsuario() { return usuario; }
     public Filme getFilme() { return filme; }
     public int getNota() { return nota; }
+
+    public void setNota(int nota) {
+        if (nota < 0 || nota > 5) {
+            throw new IllegalArgumentException("Nota deve ser entre 0 e 5");
+        }
+        this.nota = nota;
+    }
 }
