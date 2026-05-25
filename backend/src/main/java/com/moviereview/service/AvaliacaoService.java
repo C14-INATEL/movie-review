@@ -3,6 +3,7 @@ package com.moviereview.service;
 import com.moviereview.model.Avaliacao;
 import com.moviereview.model.Filme;
 import com.moviereview.model.Usuario;
+import com.moviereview.repository.AvaliacaoRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +12,18 @@ import java.util.stream.Collectors;
 public class AvaliacaoService {
 
     private final UsuarioService usuarioService;
+    private final AvaliacaoRepository repository;
     private final List<Avaliacao> avaliacoes = new ArrayList<>();
     private Long proximoId = 1L;
 
     public AvaliacaoService(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
+        this.repository = null;
+    }
+
+    public AvaliacaoService(UsuarioService usuarioService, AvaliacaoRepository repository) {
+        this.usuarioService = usuarioService;
+        this.repository = repository;
     }
 
     public Avaliacao avaliar(Usuario usuario, Filme filme, int nota) {
@@ -29,16 +37,26 @@ public class AvaliacaoService {
             throw new IllegalStateException("Usuário já avaliou este filme.");
         }
         Avaliacao avaliacao = new Avaliacao(proximoId++, usuario, filme, nota);
-        avaliacoes.add(avaliacao);
+        if (repository != null) {
+            repository.save(avaliacao);
+        } else {
+            avaliacoes.add(avaliacao);
+        }
         return avaliacao;
     }
 
     public boolean jaAvaliou(Usuario usuario, Filme filme) {
+        if (repository != null) {
+            return repository.existsByUsuarioAndFilme(usuario, filme);
+        }
         return avaliacoes.stream()
                 .anyMatch(a -> a.getUsuario() == usuario && a.getFilme() == filme);
     }
 
     public List<Avaliacao> listarPorFilme(Filme filme) {
+        if (repository != null) {
+            return repository.findByFilme(filme);
+        }
         return avaliacoes.stream()
                 .filter(a -> a.getFilme() == filme)
                 .collect(Collectors.toList());
