@@ -1,10 +1,10 @@
 package com.moviereview.service;
 
-import com.moviereview.model.Usuario;
-import com.moviereview.repository.UsuarioRepository;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.moviereview.model.Usuario;
+import com.moviereview.repository.UsuarioRepository;
 
 public class UsuarioService {
 
@@ -19,22 +19,24 @@ public class UsuarioService {
         this.repository = repository;
     }
 
-    public Usuario cadastrar(Usuario usuario) {
+    public Usuario cadastrar(String nome, String email, String senha) {
+
+        Usuario newUser = new Usuario(nome,email,senha);
         if (repository != null) {
-            if (repository.existsByEmail(usuario.getEmail())) {
-                throw new IllegalArgumentException("Email já cadastrado: " + usuario.getEmail());
+            if (repository.existsByEmail(newUser.getEmail())) {
+                throw new IllegalArgumentException("Email já cadastrado: " + newUser.getEmail());
             }
 
-            repository.save(usuario);
-            return usuario;
+            repository.save(newUser);
+            return newUser;
         }
 
-        if (emailJaExiste(usuario.getEmail())) {
-            throw new IllegalArgumentException("Email já cadastrado: " + usuario.getEmail());
+        if (emailJaExiste(newUser.getEmail())) {
+            throw new IllegalArgumentException("Email já cadastrado: " + newUser.getEmail());
         }
 
-        usuarios.add(usuario);
-        return usuario;
+        usuarios.add(newUser);
+        return newUser;
     }
 
     public boolean emailJaExiste(String email) {

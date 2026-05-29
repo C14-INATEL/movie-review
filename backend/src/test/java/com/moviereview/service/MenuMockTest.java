@@ -1,4 +1,4 @@
-package service;
+package com.moviereview.service;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import service.FilmeService;
 
 @ExtendWith(MockitoExtension.class)
 public class MenuMockTest {
