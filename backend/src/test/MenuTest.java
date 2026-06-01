@@ -1,28 +1,54 @@
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import com.moviereview.Menu;
+import com.moviereview.service.UsuarioService;
+
+import service.FilmeService;
 
 public class MenuTest {
 
-    Menu menu = new Menu();
-
     @Test
-    public void testeOpcaoSairValida() {
-        assertTrue(menu.validarOpcao(0), "A opção de sair (0) deve ser válida");
+    public void testeOpcaoListarFilmes() {
+
+        FilmeService filmeService = mock(FilmeService.class);
+        UsuarioService usuarioService = mock(UsuarioService.class);
+
+        Menu menu = new Menu(filmeService, usuarioService);
+
+        menu.processarOpcao(1);
+
+        verify(filmeService).listarFilmes();
     }
 
     @Test
-    public void testeOpcaoRankingValida() {
-        assertTrue(menu.validarOpcao(4), "A opção de ranking (4) deve ser válida");
+    public void testeOpcaoSair() {
+
+        FilmeService filmeService = mock(FilmeService.class);
+        UsuarioService usuarioService = mock(UsuarioService.class);
+
+        Menu menu = new Menu(filmeService, usuarioService);
+
+        menu.processarOpcao(0);
+
+        // Se chegou aqui sem exceção, o teste passou
     }
 
     @Test
-    public void testeOpcaoNegativaInvalida() {
-        assertFalse(menu.validarOpcao(-1), "Opções negativas devem ser inválidas");
-    }
+    public void testeOpcaoInvalida() {
 
-    @Test
-    public void testeOpcaoAcimaDoLimiteInvalida() {
-        assertFalse(menu.validarOpcao(5), "Opção fora do intervalo 0-4 deve ser inválida");
+        FilmeService filmeService = mock(FilmeService.class);
+        UsuarioService usuarioService = mock(UsuarioService.class);
+
+        Menu menu = new Menu(filmeService, usuarioService);
+
+        try {
+            menu.processarOpcao(99);
+        } catch (AssertionError e) {
+            return; // comportamento esperado
+        }
+
+        throw new AssertionError("Era esperado lançar AssertionError");
     }
 }

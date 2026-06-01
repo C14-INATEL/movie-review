@@ -18,28 +18,11 @@ public class Menu {
         this.usuarioService = usuarioService;
     }
 
-    public void exibirMenu() {
-        int escolha = -1;
-        while (escolha != 0) {
-            System.out.println("\n=======================================");
-            System.out.println("      MOVIE REVIEW SYSTEM - C14        ");
-            System.out.println("=======================================");
-            System.out.println("  [1] Listar Catálogo de Filmes");
-            System.out.println("  [2] Cadastrar Novo Usuário");
-            System.out.println("  [3] Avaliar um Filme");
-            System.out.println("  [4] Ver Ranking de Notas");
-            System.out.println("  [5] cadastrar Filme");
-            System.out.println("  [0] Sair do Sistema");
-            System.out.println("=======================================");
-            System.out.print(">> Escolha uma opção: ");
-
-            String entrada = leitor.nextLine();
-            escolha = Integer.parseInt(entrada);
-
-            switch (escolha) {
+    public void processarOpcao(int opcao){
+        switch (opcao) {
                 case 0:
                     System.out.println("\nEncerrando sistema... Até logo!");
-                    escolha = 0;
+                    opcao = 0;
                     break;
 
                 case 1:
@@ -78,7 +61,29 @@ public class Menu {
                 default:
                     throw new AssertionError();
             }
+    }
 
+    public void exibirMenu() {
+        int escolha = -1;
+        while (escolha != 0) {
+            System.out.println("\n=======================================");
+            System.out.println("      MOVIE REVIEW SYSTEM - C14        ");
+            System.out.println("=======================================");
+            System.out.println("  [1] Listar Catálogo de Filmes");
+            System.out.println("  [2] Cadastrar Novo Usuário");
+            System.out.println("  [3] Avaliar um Filme");
+            System.out.println("  [4] Ver Ranking de Notas");
+            System.out.println("  [5] cadastrar Filme");
+            System.out.println("  [0] Sair do Sistema");
+            System.out.println("=======================================");
+            System.out.print(">> Escolha uma opção: ");
+
+            String entrada = leitor.nextLine();
+            escolha = Integer.parseInt(entrada);
+
+            processarOpcao(escolha);
+
+            
         }
     }
 

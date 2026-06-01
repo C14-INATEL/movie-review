@@ -21,22 +21,21 @@ public class UsuarioService {
 
     public Usuario cadastrar(String nome, String email, String senha) {
 
-        Usuario newUser = new Usuario(nome,email,senha);
-        if (repository != null) {
-            if (repository.existsByEmail(newUser.getEmail())) {
-                throw new IllegalArgumentException("Email já cadastrado: " + newUser.getEmail());
-            }
+        Usuario newUser = new Usuario(nome, email, senha);
 
-            repository.save(newUser);
+        if (usuarios == null) {
+            usuarios.add(newUser);
             return newUser;
+        } else {
+            
+            if (emailJaExiste(newUser.getEmail())) {
+                System.out.println("Email já cadastrado: " + newUser.getEmail());
+                return null;
+            } else {
+                usuarios.add(newUser);
+                return newUser;
+            }
         }
-
-        if (emailJaExiste(newUser.getEmail())) {
-            throw new IllegalArgumentException("Email já cadastrado: " + newUser.getEmail());
-        }
-
-        usuarios.add(newUser);
-        return newUser;
     }
 
     public boolean emailJaExiste(String email) {
