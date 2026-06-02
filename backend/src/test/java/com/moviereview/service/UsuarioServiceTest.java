@@ -1,12 +1,16 @@
 package com.moviereview.service;
 
-import com.moviereview.model.Usuario;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.moviereview.model.Usuario;
 
 class UsuarioServiceTest {
 
@@ -19,53 +23,88 @@ class UsuarioServiceTest {
 
     @Test
     void deveCadastrarUsuarioComSucesso() {
-        Usuario usuario = new Usuario("João", "joao@email.com", "senha123");
 
-        Usuario cadastrado = usuarioService.cadastrar(usuario);
+        Usuario cadastrado =
+                usuarioService.cadastrar(
+                        "João",
+                        "joao@email.com",
+                        "senha123"
+                );
 
         assertNotNull(cadastrado);
         assertEquals("joao@email.com", cadastrado.getEmail());
     }
 
     @Test
-    void deveLancarExcecaoQuandoEmailJaCadastrado() {
-        Usuario usuario1 = new Usuario("João", "joao@email.com", "senha123");
-        Usuario usuario2 = new Usuario("João Silva", "joao@email.com", "outrasenha");
+    void naoDeveCadastrarEmailDuplicado() {
 
-        usuarioService.cadastrar(usuario1);
-
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> usuarioService.cadastrar(usuario2)
+        usuarioService.cadastrar(
+                "João",
+                "joao@email.com",
+                "senha123"
         );
 
-        assertEquals("Email já cadastrado: joao@email.com", exception.getMessage());
+        Usuario usuarioDuplicado =
+                usuarioService.cadastrar(
+                        "João Silva",
+                        "joao@email.com",
+                        "outrasenha"
+                );
+
+        assertNull(usuarioDuplicado);
     }
 
     @Test
     void deveRetornarTrueQuandoEmailJaExiste() {
-        usuarioService.cadastrar(new Usuario("João", "joao@email.com", "senha123"));
 
-        assertTrue(usuarioService.emailJaExiste("joao@email.com"));
+        usuarioService.cadastrar(
+                "João",
+                "joao@email.com",
+                "senha123"
+        );
+
+        assertTrue(
+                usuarioService.emailJaExiste(
+                        "joao@email.com"
+                )
+        );
     }
 
     @Test
     void deveRetornarFalseQuandoEmailNaoExiste() {
-        assertFalse(usuarioService.emailJaExiste("naoexiste@email.com"));
+
+        assertFalse(
+                usuarioService.emailJaExiste(
+                        "naoexiste@email.com"
+                )
+        );
     }
 
     @Test
     void deveValidarEmailCaseInsensitive() {
-        usuarioService.cadastrar(new Usuario("João", "joao@email.com", "senha123"));
 
-        assertTrue(usuarioService.emailJaExiste("JOAO@EMAIL.COM"));
+        usuarioService.cadastrar(
+                "João",
+                "joao@email.com",
+                "senha123"
+        );
+
+        assertTrue(
+                usuarioService.emailJaExiste(
+                        "JOAO@EMAIL.COM"
+                )
+        );
     }
 
     @Test
     void deveCadastrarUsuarioPreservandoTodosOsDados() {
-        Usuario usuario = new Usuario("João", "joao@email.com", "senha123");
 
-        Usuario cadastrado = usuarioService.cadastrar(usuario);
+        Usuario cadastrado =
+                usuarioService.cadastrar(
+                        "João",
+                        "joao@email.com",
+                        "senha123"
+                );
 
         assertEquals("João", cadastrado.getNome());
         assertEquals("joao@email.com", cadastrado.getEmail());
@@ -74,8 +113,18 @@ class UsuarioServiceTest {
 
     @Test
     void deveListarTodosOsUsuariosCadastrados() {
-        usuarioService.cadastrar(new Usuario("João", "joao@email.com", "senha123"));
-        usuarioService.cadastrar(new Usuario("Maria", "maria@email.com", "senha456"));
+
+        usuarioService.cadastrar(
+                "João",
+                "joao@email.com",
+                "senha123"
+        );
+
+        usuarioService.cadastrar(
+                "Maria",
+                "maria@email.com",
+                "senha456"
+        );
 
         List<Usuario> lista = usuarioService.listarTodos();
 
@@ -84,6 +133,7 @@ class UsuarioServiceTest {
 
     @Test
     void listarTodosDeveRetornarListaVaziaQuandoNaoHaUsuarios() {
+
         List<Usuario> lista = usuarioService.listarTodos();
 
         assertTrue(lista.isEmpty());
@@ -91,20 +141,77 @@ class UsuarioServiceTest {
 
     @Test
     void listarTodosDeveRetornarCopiaDefensiva() {
-        usuarioService.cadastrar(new Usuario("João", "joao@email.com", "senha123"));
+
+        usuarioService.cadastrar(
+                "João",
+                "joao@email.com",
+                "senha123"
+        );
 
         List<Usuario> lista = usuarioService.listarTodos();
+
         lista.clear();
 
-        assertEquals(1, usuarioService.listarTodos().size());
+        assertEquals(
+                1,
+                usuarioService.listarTodos().size()
+        );
     }
 
     @Test
     void deveCadastrarVariosUsuariosComEmailsDiferentes() {
-        usuarioService.cadastrar(new Usuario("João", "joao@email.com", "senha123"));
-        usuarioService.cadastrar(new Usuario("Maria", "maria@email.com", "senha456"));
-        usuarioService.cadastrar(new Usuario("Carlos", "carlos@email.com", "senha789"));
 
-        assertEquals(3, usuarioService.listarTodos().size());
+        usuarioService.cadastrar(
+                "João",
+                "joao@email.com",
+                "senha123"
+        );
+
+        usuarioService.cadastrar(
+                "Maria",
+                "maria@email.com",
+                "senha456"
+        );
+
+        usuarioService.cadastrar(
+                "Carlos",
+                "carlos@email.com",
+                "senha789"
+        );
+
+        assertEquals(
+                3,
+                usuarioService.listarTodos().size()
+        );
+    }
+
+    @Test
+    void deveRetornarTrueQuandoUsuarioExiste() {
+
+        Usuario usuario =
+                usuarioService.cadastrar(
+                        "João",
+                        "joao@email.com",
+                        "senha123"
+                );
+
+        assertTrue(
+                usuarioService.existe(usuario)
+        );
+    }
+
+    @Test
+    void deveRetornarFalseQuandoUsuarioNaoExiste() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Pedro",
+                        "pedro@email.com",
+                        "123"
+                );
+
+        assertFalse(
+                usuarioService.existe(usuario)
+        );
     }
 }
