@@ -10,7 +10,7 @@ public class Avaliacao {
         this.id = id;
         this.usuario = usuario;
         this.filme = filme;
-        this.nota = nota;
+        setNota(nota);
     }
 
     public Long getId() { return id; }
@@ -19,8 +19,8 @@ public class Avaliacao {
     public int getNota() { return nota; }
 
     public void setNota(int nota) {
-        if (nota < 0 || nota > 5) {
-            throw new IllegalArgumentException("Nota deve ser entre 0 e 5");
+        if (nota < 1 || nota > 5) {
+            throw new IllegalArgumentException("Nota deve ser entre 1 e 5");
         }
         this.nota = nota;
     }
