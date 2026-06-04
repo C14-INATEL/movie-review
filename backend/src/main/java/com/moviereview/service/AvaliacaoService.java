@@ -50,7 +50,7 @@ public class AvaliacaoService {
             return repository.existsByUsuarioAndFilme(usuario, filme);
         }
         return avaliacoes.stream()
-                .anyMatch(a -> a.getUsuario() == usuario && a.getFilme() == filme);
+                .anyMatch(a -> a.getUsuario().equals(usuario) && a.getFilme().equals(filme));
     }
 
     public List<Avaliacao> listarPorFilme(Filme filme) {
@@ -58,7 +58,7 @@ public class AvaliacaoService {
             return repository.findByFilme(filme);
         }
         return avaliacoes.stream()
-                .filter(a -> a.getFilme() == filme)
+                .filter(a -> a.getFilme().equals(filme))
                 .collect(Collectors.toList());
     }
 

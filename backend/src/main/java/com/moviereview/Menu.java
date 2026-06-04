@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 import com.moviereview.service.UsuarioService;
 
-import service.FilmeService;
+import com.moviereview.service.FilmeService;
 
 public class Menu {
 

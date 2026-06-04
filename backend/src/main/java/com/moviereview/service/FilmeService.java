@@ -1,4 +1,4 @@
-package service;
+package com.moviereview.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class FilmeService {
             System.out.println(filme.getTitulo());
         }
         }
-        
-        
+
+
     }
 }
