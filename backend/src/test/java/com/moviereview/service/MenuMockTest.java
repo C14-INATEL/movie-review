@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import service.FilmeService;
+import com.moviereview.service.FilmeService;
 
 @ExtendWith(MockitoExtension.class)
 public class MenuMockTest {

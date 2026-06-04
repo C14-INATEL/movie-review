@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import com.moviereview.Menu;
 import com.moviereview.service.UsuarioService;
 
-import service.FilmeService;
+import com.moviereview.service.FilmeService;
 
 public class MenuTest {
 
