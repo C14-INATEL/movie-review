@@ -15,7 +15,32 @@ pipeline {
     }
 
     stages {
+stage('Testes') {
+    agent {
+        docker {
+            image 'maven:3.9.6-eclipse-temurin-17'
+            args '-v $HOME/.m2:/root/.m2'
+            reuseNode true
+        }
+    }
 
+    steps {
+        dir('backend') {
+            sh 'mvn test -B'
+        }
+    }
+
+    post {
+        always {
+            junit 'backend/target/surefire-reports/TEST-*.xml'
+
+            archiveArtifacts(
+                artifacts: 'backend/target/surefire-reports/TEST-*.xml',
+                allowEmptyArchive: true
+            )
+        }
+    }
+}
     
     }
 
