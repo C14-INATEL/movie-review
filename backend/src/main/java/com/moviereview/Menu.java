@@ -2,9 +2,9 @@ package com.moviereview;
 
 import java.util.Scanner;
 
+import com.moviereview.service.FilmeService;
 import com.moviereview.service.UsuarioService;
 
-import com.moviereview.service.FilmeService;
 
 public class Menu {
 
@@ -18,54 +18,73 @@ public class Menu {
         this.usuarioService = usuarioService;
     }
 
-    public void processarOpcao(int opcao){
+    public void processarOpcao(int opcao) {
+
         switch (opcao) {
-                case 0:
-                    System.out.println("\nEncerrando sistema... Até logo!");
-                    opcao = 0;
-                    break;
 
-                case 1:
-                        filmeService.listarFilmes();
-                    break;
-                case 2:
-                    System.out.println("informe o nome do usuario");
-                    String nome = leitor.nextLine();
+            case 0:
+                System.out.println("\nEncerrando sistema... Até logo!");
+                break;
 
-                    System.out.println("informe o email do usuario");
-                    String email = leitor.nextLine();
+            case 1:
+                filmeService.listarFilmes();
+                break;
 
-                    System.out.println("informe a senha do usuario");
-                    String senha = leitor.nextLine();
+            case 2:
+                System.out.println("informe o nome do usuario");
+                String nome = leitor.nextLine();
 
-                    usuarioService.cadastrar(nome, email, senha);
-                    break;
-                case 3:
+                System.out.println("informe o email do usuario");
+                String email = leitor.nextLine();
 
-                    break;
-                case 4:
+                System.out.println("informe a senha do usuario");
+                String senha = leitor.nextLine();
 
-                    break;
-                case 5:
-                    System.out.println("informe o nome do filme:");
-                    String nomeFilme = leitor.nextLine();
+                usuarioService.cadastrar(nome, email, senha);
+                break;
 
-                    System.out.println("informe o nome do diretor:");
-                    String diretor = leitor.nextLine();
+            case 3:
+                break;
 
-                    System.out.println("informe o ano de lançamento:");
+            case 4:
+                break;
+
+            case 5:
+                System.out.println("informe o nome do filme:");
+                String nomeFilme = leitor.nextLine();
+
+                System.out.println("informe o nome do diretor:");
+                String diretor = leitor.nextLine();
+
+                System.out.println("informe o ano de lançamento:");
+
+                try {
                     int anoLancamento = Integer.parseInt(leitor.nextLine());
 
-                    filmeService.cadastrarFilme(nomeFilme, diretor, anoLancamento);
-                    break;
-                default:
-                    throw new AssertionError();
-            }
+                    filmeService.cadastrarFilme(
+                            nomeFilme,
+                            diretor,
+                            anoLancamento
+                    );
+
+                } catch (NumberFormatException e) {
+                    System.out.println("Ano inválido! Digite apenas números.");
+                }
+
+                break;
+
+            default:
+                System.out.println("Opção inexistente!");
+                break;
+        }
     }
 
     public void exibirMenu() {
+
         int escolha = -1;
+
         while (escolha != 0) {
+
             System.out.println("\n=======================================");
             System.out.println("      MOVIE REVIEW SYSTEM - C14        ");
             System.out.println("=======================================");
@@ -79,18 +98,25 @@ public class Menu {
             System.out.print(">> Escolha uma opção: ");
 
             String entrada = leitor.nextLine();
-            escolha = Integer.parseInt(entrada);
 
-            processarOpcao(escolha);
+            try {
 
-            
+                escolha = Integer.parseInt(entrada);
+                processarOpcao(escolha);
+
+            } catch (NumberFormatException e) {
+
+                System.out.println("Opção inválida! Digite apenas números.");
+
+            }
         }
     }
 
     public static void main(String[] args) {
-        // Criamos o serviço real aqui para o sistema funcionar normalmente
+
         FilmeService fs = new FilmeService();
         UsuarioService us = new UsuarioService();
+
         Menu meuMenu = new Menu(fs, us);
         meuMenu.exibirMenu();
     }

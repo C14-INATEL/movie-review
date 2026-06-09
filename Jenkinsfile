@@ -15,8 +15,53 @@ pipeline {
     }
 
     stages {
+stage('Testes') {
+    agent {
+        docker {
+            image 'maven:3.9.6-eclipse-temurin-17'
+            args '-v $HOME/.m2:/root/.m2'
+            reuseNode true
+        }
+    }
 
-    
+    steps {
+        dir('backend') {
+            sh 'mvn test -B'
+        }
+    }
+
+    post {
+        always {
+            junit 'backend/target/surefire-reports/TEST-*.xml'
+
+            archiveArtifacts(
+                artifacts: 'backend/target/surefire-reports/TEST-*.xml',
+                allowEmptyArchive: true
+            )
+        }
+    }
+}
+
+        // Stage 2 — comitado por: Warley Ruivo
+        stage('Cobertura de Código') {
+            agent {
+                docker {
+                    image 'maven:3.9.6-eclipse-temurin-17'
+                    args  '-v $HOME/.m2:/root/.m2'
+                    reuseNode true
+                }
+            }
+            steps {
+                dir('backend') { sh 'mvn verify -B -DskipTests=false' }
+            }
+            post {
+                always {
+                    recordCoverage(tools: [[parser: 'JACOCO',
+                                           pattern: 'backend/target/site/jacoco/jacoco.xml']])
+                }
+            }
+        }
+
     }
 
     post {
