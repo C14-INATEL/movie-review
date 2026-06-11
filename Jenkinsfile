@@ -42,7 +42,6 @@ stage('Testes') {
     }
 }
 
-        // Stage 2 — comitado por: Warley Ruivo
         stage('Cobertura de Código') {
             agent {
                 docker {
