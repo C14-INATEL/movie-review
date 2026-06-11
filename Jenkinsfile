@@ -62,6 +62,34 @@ stage('Testes') {
             }
         }
 
+        stage('SonarQube Analysis') {
+            when { expression { env.SONAR_HOST_URL?.trim() } }
+            agent {
+                docker {
+                    image 'maven:3.9.6-eclipse-temurin-17'
+                    args  '-v $HOME/.m2:/root/.m2'
+                    reuseNode true
+                }
+            }
+            steps {
+                withSonarQubeEnv('SonarCloud') {
+                    sh '''mvn -f backend/pom.xml sonar:sonar -B \
+                          -Dsonar.projectBaseDir=. \
+                          -Dsonar.coverage.jacoco.xmlReportPaths=backend/target/site/jacoco/jacoco.xml'''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            when { expression { env.SONAR_HOST_URL?.trim() } }
+            agent none
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
     }
 
     post {
