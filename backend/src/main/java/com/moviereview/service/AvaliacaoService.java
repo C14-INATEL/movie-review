@@ -1,13 +1,14 @@
 package com.moviereview.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.moviereview.model.Avaliacao;
 import com.moviereview.model.Filme;
 import com.moviereview.model.Usuario;
 import com.moviereview.repository.AvaliacaoRepository;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class AvaliacaoService {
 
@@ -21,10 +22,6 @@ public class AvaliacaoService {
         this.repository = null;
     }
 
-    public AvaliacaoService(UsuarioService usuarioService, AvaliacaoRepository repository) {
-        this.usuarioService = usuarioService;
-        this.repository = repository;
-    }
 
     public Avaliacao avaliar(Usuario usuario, Filme filme, int nota) {
         if (!usuarioService.existe(usuario)) {
@@ -71,5 +68,30 @@ public class AvaliacaoService {
                 .mapToInt(Avaliacao::getNota)
                 .average()
                 .orElse(0.0);
+    }
+
+    public void exibirRanking(FilmeService filmeService) {
+
+        List<Filme> ranking = filmeService.listarTodos()
+                .stream()
+                .filter(f -> !listarPorFilme(f).isEmpty())
+                .sorted(
+                        Comparator.comparingDouble(this::calcularMedia)
+                                .reversed()
+                )
+                .collect(Collectors.toList());
+
+        System.out.println("\n=== RANKING DE FILMES ===");
+
+        int posicao = 1;
+
+        for (Filme filme : ranking) {
+            System.out.printf(
+                    "%dº - %s | Média: %.2f%n",
+                    posicao++,
+                    filme.getTitulo(),
+                    calcularMedia(filme)
+            );
+        }
     }
 }
