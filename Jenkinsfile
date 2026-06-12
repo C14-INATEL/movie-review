@@ -15,6 +15,79 @@ pipeline {
     }
 
     stages {
+stage('Testes') {
+    agent {
+        docker {
+            image 'maven:3.9.6-eclipse-temurin-17'
+            args '-v $HOME/.m2:/root/.m2'
+            reuseNode true
+        }
+    }
+
+    steps {
+        dir('backend') {
+            sh 'mvn test -B'
+        }
+    }
+
+    post {
+        always {
+            junit 'backend/target/surefire-reports/TEST-*.xml'
+
+            archiveArtifacts(
+                artifacts: 'backend/target/surefire-reports/TEST-*.xml',
+                allowEmptyArchive: true
+            )
+        }
+    }
+}
+
+        stage('Cobertura de Código') {
+            agent {
+                docker {
+                    image 'maven:3.9.6-eclipse-temurin-17'
+                    args  '-v $HOME/.m2:/root/.m2'
+                    reuseNode true
+                }
+            }
+            steps {
+                dir('backend') { sh 'mvn verify -B -DskipTests=false' }
+            }
+            post {
+                always {
+                    recordCoverage(tools: [[parser: 'JACOCO',
+                                           pattern: 'backend/target/site/jacoco/jacoco.xml']])
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            when { expression { env.SONAR_HOST_URL?.trim() } }
+            agent {
+                docker {
+                    image 'maven:3.9.6-eclipse-temurin-17'
+                    args  '-v $HOME/.m2:/root/.m2'
+                    reuseNode true
+                }
+            }
+            steps {
+                withSonarQubeEnv('SonarCloud') {
+                    sh '''mvn -f backend/pom.xml sonar:sonar -B \
+                          -Dsonar.projectBaseDir=. \
+                          -Dsonar.coverage.jacoco.xmlReportPaths=backend/target/site/jacoco/jacoco.xml'''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            when { expression { env.SONAR_HOST_URL?.trim() } }
+            agent none
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
         // Só roda quando o merge chegou na main (não em builds de PR)
         // O quality gate já garante que, se o Sonar falhar, o pipeline para antes daqui
@@ -52,7 +125,6 @@ pipeline {
                 }
             }
         }
-
     }
 
     post {

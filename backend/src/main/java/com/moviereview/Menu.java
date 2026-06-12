@@ -2,70 +2,116 @@ package com.moviereview;
 
 import java.util.Scanner;
 
-import com.moviereview.service.UsuarioService;
-
+import com.moviereview.model.Filme;
+import com.moviereview.model.Usuario;
+import com.moviereview.service.AvaliacaoService;
 import com.moviereview.service.FilmeService;
+import com.moviereview.service.UsuarioService;
 
 public class Menu {
 
     private Scanner leitor = new Scanner(System.in);
     private FilmeService filmeService;
     private UsuarioService usuarioService;
+    private AvaliacaoService avaliacaoService;
 
     // Construtor necessário para receber o Mock do teste
-    public Menu(FilmeService filmeService, UsuarioService usuarioService) {
+    public Menu(FilmeService filmeService, UsuarioService usuarioService, AvaliacaoService avaliacaoService) {
         this.filmeService = filmeService;
         this.usuarioService = usuarioService;
+        this.avaliacaoService = avaliacaoService;
     }
 
-    public void processarOpcao(int opcao){
+    public void processarOpcao(int opcao) {
+
         switch (opcao) {
-                case 0:
-                    System.out.println("\nEncerrando sistema... Até logo!");
-                    opcao = 0;
+
+            case 0:
+                System.out.println("\nEncerrando sistema... Até logo!");
+                break;
+
+            case 1:
+                filmeService.listarFilmes();
+                break;
+
+            case 2:
+                System.out.println("informe o nome do usuario");
+                String nome = leitor.nextLine();
+
+                System.out.println("informe o email do usuario");
+                String email = leitor.nextLine();
+
+                System.out.println("informe a senha do usuario");
+                String senha = leitor.nextLine();
+
+                usuarioService.cadastrar(nome, email, senha);
+                break;
+
+            case 3:
+                System.out.println("informe o nome do filme a ser avaliado:");
+                String nomeFilme = leitor.nextLine();
+
+                System.out.println("informe o email do usuario que será utilizado para a avaliação:");
+                email = leitor.nextLine();
+
+                System.out.println("Informe a nota do filme");
+                int notaFilme = Integer.parseInt(leitor.nextLine());
+
+                Usuario usuario = usuarioService.buscarPorEmail(email);
+                if (usuario == null) {
+                    System.out.println("Usuário não encontrado.");
                     break;
+                }
+                Filme filme = filmeService.buscarPorNome(nomeFilme);            
 
-                case 1:
-                        filmeService.listarFilmes();
+                if (filme == null) {
+                    System.out.println("Filme não encontrado.");
                     break;
-                case 2:
-                    System.out.println("informe o nome do usuario");
-                    String nome = leitor.nextLine();
+                }
 
-                    System.out.println("informe o email do usuario");
-                    String email = leitor.nextLine();
+                avaliacaoService.avaliar(usuario, filme, notaFilme);
+                break;
 
-                    System.out.println("informe a senha do usuario");
-                    String senha = leitor.nextLine();
+            case 4:
+                avaliacaoService.exibirRanking(filmeService);
+                break;
 
-                    usuarioService.cadastrar(nome, email, senha);
-                    break;
-                case 3:
+            case 5:
+                System.out.println("informe o nome do filme:");
+                nomeFilme = leitor.nextLine();
 
-                    break;
-                case 4:
+                System.out.println("informe o nome do diretor:");
+                String diretor = leitor.nextLine();
 
-                    break;
-                case 5:
-                    System.out.println("informe o nome do filme:");
-                    String nomeFilme = leitor.nextLine();
+                System.out.println("informe o ano de lançamento:");
 
-                    System.out.println("informe o nome do diretor:");
-                    String diretor = leitor.nextLine();
-
-                    System.out.println("informe o ano de lançamento:");
+                try {
                     int anoLancamento = Integer.parseInt(leitor.nextLine());
 
-                    filmeService.cadastrarFilme(nomeFilme, diretor, anoLancamento);
-                    break;
-                default:
-                    throw new AssertionError();
-            }
+                    filmeService.cadastrarFilme(
+                            nomeFilme,
+                            diretor,
+                            anoLancamento
+                    );
+
+                } catch (NumberFormatException e) {
+                    System.out.println("Ano inválido! Digite apenas números.");
+                }
+
+                break;
+
+            default:
+                System.out.println("Opção inexistente!");
+                break;
+        }
     }
 
     public void exibirMenu() {
+
         int escolha = -1;
+
         while (escolha != 0) {
+
             System.out.println("\n=======================================");
             System.out.println("      MOVIE REVIEW SYSTEM - C14        ");
             System.out.println("=======================================");
@@ -79,19 +125,27 @@ public class Menu {
             System.out.print(">> Escolha uma opção: ");
 
             String entrada = leitor.nextLine();
-            escolha = Integer.parseInt(entrada);
 
-            processarOpcao(escolha);
+            try {
 
-            
+                escolha = Integer.parseInt(entrada);
+                processarOpcao(escolha);
+
+            } catch (NumberFormatException e) {
+
+                System.out.println("Opção inválida! Digite apenas números.");
+
+            }
         }
     }
 
     public static void main(String[] args) {
-        // Criamos o serviço real aqui para o sistema funcionar normalmente
+
         FilmeService fs = new FilmeService();
         UsuarioService us = new UsuarioService();
-        Menu meuMenu = new Menu(fs, us);
+        AvaliacaoService as = new AvaliacaoService(us);
+
+        Menu meuMenu = new Menu(fs, us, as);
         meuMenu.exibirMenu();
     }
 }

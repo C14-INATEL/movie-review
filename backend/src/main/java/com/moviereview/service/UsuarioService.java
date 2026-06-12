@@ -19,23 +19,33 @@ public class UsuarioService {
         this.repository = repository;
     }
 
-    public Usuario cadastrar(String nome, String email, String senha) {
+    public Usuario cadastrar(Usuario usuario) {
 
-        Usuario newUser = new Usuario(nome, email, senha);
+        // Caso usado pelos testes com Mockito
+        if (repository != null) {
 
-        if (usuarios == null) {
-            usuarios.add(newUser);
-            return newUser;
-        } else {
-            
-            if (emailJaExiste(newUser.getEmail())) {
-                System.out.println("Email já cadastrado: " + newUser.getEmail());
-                return null;
-            } else {
-                usuarios.add(newUser);
-                return newUser;
+            if (repository.existsByEmail(usuario.getEmail())) {
+                throw new IllegalArgumentException(
+                        "Email já cadastrado: " + usuario.getEmail()
+                );
             }
+
+            repository.save(usuario);
+            return usuario;
         }
+
+        // Caso usado pelos testes normais
+        if (emailJaExiste(usuario.getEmail())) {
+            System.out.println("Email já cadastrado: " + usuario.getEmail());
+            return null;
+        }
+
+        usuarios.add(usuario);
+        return usuario;
+    }
+
+    public Usuario cadastrar(String nome, String email, String senha) {
+        return cadastrar(new Usuario(nome, email, senha));
     }
 
     public boolean emailJaExiste(String email) {
@@ -50,4 +60,10 @@ public class UsuarioService {
     public List<Usuario> listarTodos() {
         return new ArrayList<>(usuarios);
     }
+    public Usuario buscarPorEmail(String email) {
+    return usuarios.stream()
+            .filter(u -> u.getEmail().equalsIgnoreCase(email))
+            .findFirst()
+            .orElse(null);
+}
 }
