@@ -38,7 +38,7 @@ de avaliacao pelo terminal e a visualizacao de ranking.
 
 ## Tecnologias
 
-- Java 21
+- Java 17
 - Maven
 - JUnit 5
 - Mockito

@@ -3,9 +3,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.moviereview.Menu;
+import com.moviereview.service.AvaliacaoService;
+import com.moviereview.service.FilmeService;
 import com.moviereview.service.UsuarioService;
-
-import service.FilmeService;
 
 public class MenuTest {
 
@@ -14,8 +14,9 @@ public class MenuTest {
 
         FilmeService filmeService = mock(FilmeService.class);
         UsuarioService usuarioService = mock(UsuarioService.class);
+        AvaliacaoService avaliacaoService = mock(AvaliacaoService.class);
 
-        Menu menu = new Menu(filmeService, usuarioService);
+        Menu menu = new Menu(filmeService, usuarioService,avaliacaoService);
 
         menu.processarOpcao(1);
 
@@ -27,8 +28,10 @@ public class MenuTest {
 
         FilmeService filmeService = mock(FilmeService.class);
         UsuarioService usuarioService = mock(UsuarioService.class);
+        AvaliacaoService avaliacaoService = mock(AvaliacaoService.class);
 
-        Menu menu = new Menu(filmeService, usuarioService);
+        Menu menu = new Menu(filmeService, usuarioService,avaliacaoService);
+
 
         menu.processarOpcao(0);
 
@@ -39,9 +42,10 @@ public class MenuTest {
     public void testeOpcaoInvalida() {
 
         FilmeService filmeService = mock(FilmeService.class);
+        AvaliacaoService avaliacaoService = mock(AvaliacaoService.class);
         UsuarioService usuarioService = mock(UsuarioService.class);
+        Menu menu = new Menu(filmeService, usuarioService,avaliacaoService);
 
-        Menu menu = new Menu(filmeService, usuarioService);
 
         try {
             menu.processarOpcao(99);

@@ -1,4 +1,4 @@
-package service;
+package com.moviereview.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +35,24 @@ public class FilmeService {
     }
 
     public void listarFilmes() {
-        if(filmes.isEmpty()){
+        if (filmes.isEmpty()) {
             System.out.println("nenhum filme disponivel");
-        }else{
+        } else {
             for (Filme filme : filmes) {
-            System.out.println(filme.getTitulo());
+                System.out.println(filme.getTitulo());
+            }
         }
-        }
-        
-        
+
+    }
+
+    public List<Filme> listarTodos() {
+        return new ArrayList<>(filmes);
+    }
+
+    public Filme buscarPorNome(String nomeFilme) {
+        return filmes.stream()
+                .filter(f -> f.getTitulo().equalsIgnoreCase(nomeFilme))
+                .findFirst()
+                .orElse(null);
     }
 }
