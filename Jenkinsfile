@@ -88,6 +88,23 @@ stage('Testes') {
                 }
             }
         }
+        stage('Build / Empacotamento') {
+            agent {
+                docker {
+                    image 'maven:3.9.6-eclipse-temurin-17'
+                    args  '-v $HOME/.m2:/root/.m2'
+                    reuseNode true
+                }
+            }
+            steps {
+                dir('backend') { sh 'mvn package -B -DskipTests' }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'backend/target/*.jar', fingerprint: true
+                }
+            }
+        }
 
         // Só roda quando o merge chegou na main (não em builds de PR)
         // O quality gate já garante que, se o Sonar falhar, o pipeline para antes daqui
