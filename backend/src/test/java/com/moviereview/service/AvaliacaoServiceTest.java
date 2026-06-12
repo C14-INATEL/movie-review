@@ -146,4 +146,38 @@ class AvaliacaoServiceTest {
         assertEquals(filme, avaliacao.getFilme());
         assertEquals(5, avaliacao.getNota());
     }
+
+    @Test
+    void deveExibirRankingComFilmes() {
+        FilmeService filmeService = new FilmeService();
+        filmeService.cadastrarFilme("Matrix", "Wachowski", 1999);
+        filmeService.cadastrarFilme("Interestelar", "Nolan", 2014);
+        Filme matrix = filmeService.buscarPorNome("Matrix");
+        Filme interestelar = filmeService.buscarPorNome("Interestelar");
+
+        Usuario outro = new Usuario("Maria", "maria@email.com", "senha");
+        usuarioService.cadastrar(outro);
+
+        avaliacaoService.avaliar(usuario, matrix, 5);
+        avaliacaoService.avaliar(outro, interestelar, 3);
+
+        avaliacaoService.exibirRanking(filmeService);
+    }
+
+    @Test
+    void deveExibirRankingVazioSemErros() {
+        FilmeService filmeService = new FilmeService();
+        avaliacaoService.exibirRanking(filmeService);
+    }
+
+    @Test
+    void deveExibirRankingIgnorandoFilmesSemAvaliacao() {
+        FilmeService filmeService = new FilmeService();
+        filmeService.cadastrarFilme("SemAvaliacao", "Dir", 2000);
+        filmeService.cadastrarFilme("ComAvaliacao", "Dir2", 2001);
+        Filme comAvaliacao = filmeService.buscarPorNome("ComAvaliacao");
+
+        avaliacaoService.avaliar(usuario, comAvaliacao, 4);
+        avaliacaoService.exibirRanking(filmeService);
+    }
 }

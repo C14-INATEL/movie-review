@@ -53,4 +53,63 @@ class ModeloTest {
 
         assertEquals("Titulo Novo", filme.getTitulo());
     }
+
+    @Test
+    @DisplayName("T05 – Filme equals deve retornar true para mesmo objeto")
+    void filmeEqualsParaMesmoObjeto() {
+        Filme f = new Filme("Matrix", "W", 1999);
+        assertEquals(f, f);
+    }
+
+    @Test
+    @DisplayName("T06 – Filme equals deve retornar false para null e tipos diferentes")
+    void filmeEqualsParaNuloETipoDiferente() {
+        Filme f = new Filme("Matrix", "W", 1999);
+        assertNotEquals(f, null);
+        assertNotEquals(f, "uma string");
+    }
+
+    @Test
+    @DisplayName("T07 – Filme equals deve retornar false para anos diferentes")
+    void filmeEqualsParaAnosDiferentes() {
+        assertNotEquals(new Filme("Matrix", "W", 1999), new Filme("Matrix", "W", 2003));
+    }
+
+    @Test
+    @DisplayName("T08 – Filme hashCode deve ser consistente para objetos iguais")
+    void filmeHashCodeConsistente() {
+        Filme f1 = new Filme("Matrix", "W", 1999);
+        Filme f2 = new Filme("Matrix", "W", 1999);
+        assertEquals(f1.hashCode(), f2.hashCode());
+    }
+
+    @Test
+    @DisplayName("T09 – Usuario equals deve retornar true para mesmo objeto")
+    void usuarioEqualsParaMesmoObjeto() {
+        Usuario u = new Usuario("A", "a@a.com", "123");
+        assertEquals(u, u);
+    }
+
+    @Test
+    @DisplayName("T10 – Usuario equals deve retornar false para null e tipos diferentes")
+    void usuarioEqualsParaNuloETipoDiferente() {
+        Usuario u = new Usuario("A", "a@a.com", "123");
+        assertNotEquals(u, null);
+        assertNotEquals(u, "string");
+    }
+
+    @Test
+    @DisplayName("T11 – Usuario hashCode deve ser consistente para mesmo email")
+    void usuarioHashCodeConsistente() {
+        Usuario u1 = new Usuario("Ana", "a@a.com", "111");
+        Usuario u2 = new Usuario("Bob", "a@a.com", "222");
+        assertEquals(u1.hashCode(), u2.hashCode());
+    }
+
+    @Test
+    @DisplayName("T12 – Avaliacao deve expor getId corretamente")
+    void avaliacaoGetId() {
+        Avaliacao a = new Avaliacao(42L, new Usuario("X", "x@x.com", "p"), new Filme("F", "D", 2000), 3);
+        assertEquals(42L, a.getId());
+    }
 }

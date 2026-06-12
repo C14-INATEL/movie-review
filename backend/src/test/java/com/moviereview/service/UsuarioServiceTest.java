@@ -202,16 +202,26 @@ class UsuarioServiceTest {
 
     @Test
     void deveRetornarFalseQuandoUsuarioNaoExiste() {
+        Usuario usuario = new Usuario("Pedro", "pedro@email.com", "123");
+        assertFalse(usuarioService.existe(usuario));
+    }
 
-        Usuario usuario =
-                new Usuario(
-                        "Pedro",
-                        "pedro@email.com",
-                        "123"
-                );
+    @Test
+    void deveBuscarUsuarioPorEmail() {
+        usuarioService.cadastrar("João", "joao@email.com", "senha");
+        Usuario encontrado = usuarioService.buscarPorEmail("joao@email.com");
+        assertNotNull(encontrado);
+        assertEquals("João", encontrado.getNome());
+    }
 
-        assertFalse(
-                usuarioService.existe(usuario)
-        );
+    @Test
+    void deveRetornarNullParaEmailNaoEncontrado() {
+        assertNull(usuarioService.buscarPorEmail("naoexiste@email.com"));
+    }
+
+    @Test
+    void deveBuscarPorEmailCaseInsensitive() {
+        usuarioService.cadastrar("João", "joao@email.com", "senha");
+        assertNotNull(usuarioService.buscarPorEmail("JOAO@EMAIL.COM"));
     }
 }

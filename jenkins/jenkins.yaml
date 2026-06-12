@@ -1,0 +1,66 @@
+jenkins:
+  systemMessage: "movie-review — Pipeline CI/CD"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          name: "Administrator"
+          password: "${JENKINS_ADMIN_PASS:-admin}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "github-token"
+              username: "${GITHUB_USER:-matheusvhs}"
+              password: "${GITHUB_TOKEN}"
+              description: "GitHub PAT for movie-review pipeline"
+          - string:
+              scope: GLOBAL
+              id: "sonarqube-token"
+              secret: "${SONAR_TOKEN:-}"
+              description: "SonarCloud Token"
+
+unclassified:
+  sonarGlobalConfiguration:
+    buildWrapperEnabled: true
+    installations:
+      - name: "SonarCloud"
+        serverUrl: "http://sonarqube:9000"
+        credentialsId: "sonarqube-token"
+  mailer:
+    smtpHost: "mailhog"
+    smtpPort: "1025"
+    replyToAddress: "jenkins@movie-review.local"
+    useSsl: false
+  gitHubPluginConfig:
+    hookUrl: "${JENKINS_URL:-http://localhost:8080}/github-webhook/"
+
+jobs:
+  - script: |
+      multibranchPipelineJob('movie-review') {
+        description('Pipeline CI/CD do projeto movie-review')
+        branchSources {
+          github {
+            id('movie-review-scm')
+            scanCredentialsId('github-token')
+            repoOwner('C14-INATEL')
+            repository('movie-review')
+          }
+        }
+        orphanedItemStrategy {
+          discardOldItems { numToKeep(5) }
+        }
+        factory {
+          workflowBranchProjectFactory {
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }

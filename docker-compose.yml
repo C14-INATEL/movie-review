@@ -1,0 +1,88 @@
+services:
+
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    container_name: movie-review-jenkins
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - "0"
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    env_file:
+      - .env
+    depends_on:
+      - sonarqube
+      - mailhog
+    restart: unless-stopped
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: movie-review-sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://db:5432/${POSTGRES_DB:-sonar}
+      - SONAR_JDBC_USERNAME=${POSTGRES_USER:-sonar}
+      - SONAR_JDBC_PASSWORD=${POSTGRES_PASSWORD:-sonar}
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9000/api/system/status | grep -q '\"status\":\"UP\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: movie-review-sonarqube-db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-sonar}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sonar}
+      - POSTGRES_DB=${POSTGRES_DB:-sonar}
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  sonarqube-init:
+    image: alpine:3.20
+    container_name: movie-review-sonarqube-init
+    depends_on:
+      sonarqube:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        apk add --quiet curl
+        curl -sf -u admin:admin -X POST http://sonarqube:9000/api/settings/set \
+          -d key=sonar.forceAuthentication -d value=false
+        curl -sf -u admin:admin -X POST http://sonarqube:9000/api/webhooks/create \
+          -d name=Jenkins -d url=http://jenkins:8080/sonarqube-webhook/ \
+          || echo 'webhook ja existente'
+    restart: "no"
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: movie-review-mailhog
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgresql_data:
