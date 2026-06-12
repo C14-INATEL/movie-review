@@ -44,7 +44,7 @@ de avaliacao pelo terminal e a visualizacao de ranking.
 - Mockito
 - JaCoCo
 - SonarCloud
-- Jenkins
+- Jenkins (CI/CD)
 
 ## Estrutura
 
@@ -140,6 +140,96 @@ Exemplos de cenarios cobertos:
 - busca de filme via cliente externo mockado;
 - verificacao de chamadas a repositorios mockados.
 
+## Histórias de Usuários
+
+Esta seção apresenta as histórias de usuário desenvolvidas ao longo do projeto, demonstrando a aplicação dos conceitos de Engenharia de Software e a rastreabilidade entre requisitos, implementação e testes automatizados.
+
+### US04 – Cadastro de Filmes no Catálogo
+
+- **Como** administrador do sistema Movie Review,
+
+- **Eu quero** cadastrar novos filmes no catálogo,
+
+- **Para que** eles possam ser consultados e avaliados pelos usuários da plataforma.
+
+#### Critérios de Aceitação
+
+##### Cenário 1 – Cadastro realizado com sucesso
+
+- **Given** que o administrador acessou a funcionalidade de cadastro de filmes
+
+- **When** ele informa um título inédito, diretor e ano de lançamento válidos
+
+- **Then** o sistema deve registrar o filme e exibir uma mensagem de confirmação.
+
+##### Cenário 2 – Bloqueio de filmes duplicados
+
+- **Given** que já existe um filme cadastrado com determinado título
+
+- **When** o administrador tenta cadastrar novamente o mesmo filme
+
+- **Then** o sistema deve impedir a duplicidade e informar que o filme já está cadastrado.
+
+##### Cenário 3 – Entrada inválida durante o cadastro
+
+- **Given** que o menu principal está aguardando uma opção
+
+- **When** o usuário informa texto, caracteres inválidos ou uma entrada incompatível
+
+- **Then** o sistema deve tratar a exceção e permitir que o usuário tente novamente sem encerrar a aplicação.
+
+#### Prioridade
+
+- Alta
+
+#### Status
+
+- Entregue
+
+#### Rastreabilidade
+
+**Issue:** Não formalizada no GitHub Issues.
+
+**Pull Request:** #22
+
+**Commits relacionados:**
+
+* `fix(menu): Ajuste para não crashar o menu`
+* `finish menu and testes`
+
+**Classes envolvidas:**
+
+* `Menu.java`
+* `FilmeService.java`
+
+**Testes Automatizados:**
+
+* `MenuTest.java`
+* `FilmeServiceTest.java`
+
+#### Contribuição da Integrante
+
+Responsável pela implementação das melhorias no fluxo de cadastro de filmes, estabilização do menu principal através do tratamento de entradas inválidas e adequação dos testes automatizados relacionados às funcionalidades desenvolvidas.
+
+## Uso de IA
+
+Conforme as diretrizes de avaliação da NP2, declaramos o uso transparente de assistentes de IA durante o ciclo de desenvolvimento do projeto para aprimoramento do processo de engenharia de software.
+
+Modelos Utilizados:
+- Gemini (Google).
+
+Aplicações Práticas:
+- Refatoração de Código: Auxílio na reestruturação do menu do terminal (Menu.java) utilizando estruturas de controle limpas e tratamento robusto de exceções de entrada de dados.
+- Engenharia de Testes: Apoio no desenho e escrita dos casos de teste baseados em dublês de teste (Mocks) utilizando JUnit 5 e Mockito para simular falhas e regras de persistência.
+
+Exemplos de Prompts Realizados:
+- "Como estruturar uma história de usuário que cubra o cadastro de filmes e o tratamento de erros do menu numérico no padrão de Engenharia de Software?"
+- "Qual comando do Git utilizo para listar exclusivamente os meus commits condensados em apenas uma linha para fins de relatório?"
+- "Como criar testes unitários utilizando Mockito para validar chamadas a um repositório em Java?"
+
+Dinâmica de Uso:
+- A IA atuou como uma ferramenta de co-piloto consultivo e revisão por pares estendida. Nenhuma lógica foi integrada ao repositório sem que houvesse a completa revisão manual, refatoração de nomes para o escopo do domínio e validação local via execução completa de testes automatizados
+
 ## Fluxo de Trabalho com Branches
 
 Este projeto nao deve receber commits diretamente na `main`.
@@ -181,18 +271,7 @@ Por fim, abrir um Pull Request para a `main`.
 
 ## Status Atual
 
-O projeto esta em fase de refatoracao e consolidacao das branches. A prioridade
-atual e alinhar os contratos entre servicos e testes, padronizar pacotes e
-garantir que a `main` compile e rode a suite de testes com sucesso.
-
-## Proximos Passos
-
-- finalizar o fluxo completo do menu;
-- integrar cadastro e avaliacao de filmes pela interface de terminal;
-- consolidar as regras de validacao das entidades;
-- padronizar a comparacao entre usuarios e filmes;
-- fortalecer os testes de regressao;
-- concluir a configuracao de CI/CD.
+O projeto concluiu a fase de estabilização estrutural. A suite principal de testes automatizados integrada com a pipeline de CI/CD está operacional, com 100% de sucesso nas validações das regras de negócio mapeadas.
 
 ## Licenca
 
