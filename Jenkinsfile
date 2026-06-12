@@ -63,7 +63,6 @@ stage('Testes') {
         }
 
         stage('SonarQube Analysis') {
-            when { expression { env.SONAR_HOST_URL?.trim() } }
             agent {
                 docker {
                     image 'maven:3.9.6-eclipse-temurin-17'
@@ -74,6 +73,7 @@ stage('Testes') {
             steps {
                 withSonarQubeEnv('SonarCloud') {
                     sh '''mvn -f backend/pom.xml sonar:sonar -B \
+                          -Dsonar.projectKey=com.moviereview:movie-review-backend \
                           -Dsonar.projectBaseDir=. \
                           -Dsonar.coverage.jacoco.xmlReportPaths=backend/target/site/jacoco/jacoco.xml'''
                 }
@@ -81,7 +81,6 @@ stage('Testes') {
         }
 
         stage('Quality Gate') {
-            when { expression { env.SONAR_HOST_URL?.trim() } }
             agent none
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -111,6 +110,9 @@ stage('Testes') {
         // O quality gate já garante que, se o Sonar falhar, o pipeline para antes daqui
         stage('Publicar Release') {
             when { branch 'main' }
+            environment {
+                GITHUB_CREDS = credentials('github-token')
+            }
             agent {
                 docker {
                     image 'maven:3.9.6-eclipse-temurin-17'
@@ -119,31 +121,29 @@ stage('Testes') {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
-                    sh '''
-                        set -eu
-                        TAG_NAME="v${BUILD_NUMBER}"
-                        JAR="backend/target/${JAR_NAME}"
+                sh '''
+                    set -eu
+                    TAG_NAME="v${BUILD_NUMBER}"
+                    JAR="backend/target/${JAR_NAME}"
 
-                        printf '{"tag_name":"%s","target_commitish":"main","name":"%s","body":"Build automatico #%s"}' "${TAG_NAME}" "${TAG_NAME}" "${BUILD_NUMBER}" > /tmp/gh_payload.json
+                    printf '{"tag_name":"%s","target_commitish":"main","name":"%s","body":"Build automatico #%s"}' "${TAG_NAME}" "${TAG_NAME}" "${BUILD_NUMBER}" > /tmp/gh_payload.json
 
-                        curl -sf -X POST \
-                            -H "Authorization: token ${GITHUB_TOKEN}" \
-                            -H "Content-Type: application/json" \
-                            -d @/tmp/gh_payload.json \
-                            "https://api.github.com/repos/${REPO}/releases" > /tmp/gh_release.json
+                    curl -sf -X POST \
+                        -H "Authorization: token ${GITHUB_CREDS_PSW}" \
+                        -H "Content-Type: application/json" \
+                        -d @/tmp/gh_payload.json \
+                        "https://api.github.com/repos/${REPO}/releases" > /tmp/gh_release.json
 
-                        RELEASE_ID=$(grep -oE "\"id\":[0-9]+" /tmp/gh_release.json | head -1 | grep -oE "[0-9]+")
+                    RELEASE_ID=$(grep -oE "\"id\":[0-9]+" /tmp/gh_release.json | head -1 | grep -oE "[0-9]+")
 
-                        curl -sf -X POST \
-                            -H "Authorization: token ${GITHUB_TOKEN}" \
-                            -H "Content-Type: application/java-archive" \
-                            --data-binary @"${JAR}" \
-                            "https://uploads.github.com/repos/${REPO}/releases/${RELEASE_ID}/assets?name=movie-review-backend-${TAG_NAME}.jar"
+                    curl -sf -X POST \
+                        -H "Authorization: token ${GITHUB_CREDS_PSW}" \
+                        -H "Content-Type: application/java-archive" \
+                        --data-binary @"${JAR}" \
+                        "https://uploads.github.com/repos/${REPO}/releases/${RELEASE_ID}/assets?name=movie-review-backend-${TAG_NAME}.jar"
 
-                        echo "Release ${TAG_NAME} publicada: https://github.com/${REPO}/releases/tag/${TAG_NAME}"
-                    '''
-                }
+                    echo "Release ${TAG_NAME} publicada: https://github.com/${REPO}/releases/tag/${TAG_NAME}"
+                '''
             }
         }
     }
