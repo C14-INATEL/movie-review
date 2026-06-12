@@ -134,7 +134,7 @@ stage('Testes') {
                         -d @/tmp/gh_payload.json \
                         "https://api.github.com/repos/${REPO}/releases" > /tmp/gh_release.json
 
-                    RELEASE_ID=$(grep -oE "\"id\":[0-9]+" /tmp/gh_release.json | head -1 | grep -oE "[0-9]+")
+                    RELEASE_ID=$(grep -oE "\"id\": *[0-9]+" /tmp/gh_release.json | head -1 | grep -oE "[0-9]+")
 
                     curl -sf -X POST \
                         -H "Authorization: token ${GITHUB_CREDS_PSW}" \
