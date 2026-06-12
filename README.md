@@ -112,6 +112,12 @@ Compile o projeto:
 mvn clean compile
 ```
 
+Execute o aplicativo:
+
+```bash
+mvn exec:java -Dexec.mainClass="com.moviereview.Menu"
+```
+
 Execute os testes:
 
 ```bash
@@ -146,20 +152,35 @@ Exemplos de cenarios cobertos:
 
 Conforme as diretrizes de avaliação da NP2, declaramos o uso transparente de assistentes de IA durante o ciclo de desenvolvimento do projeto para aprimoramento do processo de engenharia de software.
 
-Modelos Utilizados:
-- Gemini (Google).
+### Modelos Utilizados
 
-Aplicações Práticas:
-- Refatoração de Código: Auxílio na reestruturação do menu do terminal (Menu.java) utilizando estruturas de controle limpas e tratamento robusto de exceções de entrada de dados.
-- Engenharia de Testes: Apoio no desenho e escrita dos casos de teste baseados em dublês de teste (Mocks) utilizando JUnit 5 e Mockito para simular falhas e regras de persistência.
+- **Gemini** (Google) — geração de código, sugestão de testes e documentação
+- **Claude Code** (Anthropic) — suporte à configuração do pipeline Jenkins, debug de scripts shell e refatoração de Jenkinsfile
 
-Exemplos de Prompts Realizados:
-- "Como estruturar uma história de usuário que cubra o cadastro de filmes e o tratamento de erros do menu numérico no padrão de Engenharia de Software?"
-- "Qual comando do Git utilizo para listar exclusivamente os meus commits condensados em apenas uma linha para fins de relatório?"
-- "Como criar testes unitários utilizando Mockito para validar chamadas a um repositório em Java?"
+### Aplicações Práticas
 
-Dinâmica de Uso:
-- A IA atuou como uma ferramenta de co-piloto consultivo e revisão por pares estendida. Nenhuma lógica foi integrada ao repositório sem que houvesse a completa revisão manual, refatoração de nomes para o escopo do domínio e validação local via execução completa de testes automatizados
+- **Refatoração de Código:** Auxílio na reestruturação do menu do terminal (`Menu.java`) com estruturas de controle limpas e tratamento robusto de entradas inválidas.
+- **Engenharia de Testes:** Apoio no desenho dos casos de teste com Mockito para simular repositórios e clientes externos.
+- **Configuração de CI/CD:** Suporte na depuração de scripts shell no Jenkinsfile, especificamente na extração de IDs da API do GitHub e no comportamento do dash com `set -e`.
+- **Documentação:** Apoio na estruturação das histórias de usuário no formato Given/When/Then.
+
+### Exemplos de Prompts e Resultados
+
+| Prompt | O que foi feito com o resultado |
+|--------|--------------------------------|
+| "Como estruturar uma história de usuário que cubra o cadastro de filmes e o tratamento de erros do menu numérico no padrão de Engenharia de Software?" | Estrutura sugerida aceita; critérios de aceitação adaptados para o domínio real do projeto (filmes, notas 1-5, regras de duplicidade). |
+| "Como criar testes unitários utilizando Mockito para validar chamadas a um repositório em Java?" | Código gerado revisado e adaptado: nomes de variáveis ajustados para o domínio (`usuarioService`, `repository`), `@DisplayName` adicionado manualmente para clareza. |
+| "Por que o script shell no Jenkinsfile falha ao extrair o RELEASE_ID com `grep`?" | Diagnóstico correto (comportamento do `set -e` em dash ao executar `$(grep...)`); solução aplicada com ajuste de padrão e adição de `|| true`. |
+
+### O Que NÃO Foi Feito por IA
+
+- A definição das regras de negócio (`AvaliacaoService`: validação 1–5, bloqueio de duplicidade, cálculo de média) foi escrita manualmente, com os testes de boundary desenvolvidos pelo grupo antes de qualquer consulta a IA.
+- A arquitetura de camadas (model/service/repository/client) e a decisão pelo padrão dual-constructor para testabilidade foram definidas pelo grupo.
+- A resolução dos conflitos de merge (PR #9 e appmod/java-upgrade) e a depuração dos problemas estruturais de pacote foram feitas manualmente, sem assistência de IA.
+
+### Dinâmica de Uso
+
+A IA atuou como co-piloto consultivo. Nenhuma lógica foi integrada ao repositório sem revisão manual completa, refatoração de nomenclatura para o domínio do projeto e validação via execução da suíte de testes (`mvn test`).
 
 ## Fluxo de Trabalho com Branches
 

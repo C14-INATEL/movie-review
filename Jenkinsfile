@@ -6,7 +6,7 @@ pipeline {
     environment {
         SMTP_PORT = "${env.SMTP_PORT ?: '587'}"
         REPO      = 'C14-INATEL/movie-review'
-        JAR_NAME  = 'movie-review-backend-0.0.1-SNAPSHOT.jar'
+        JAR_NAME  = 'movie-review-backend-0.2.0.jar'
     }
 
     options {
