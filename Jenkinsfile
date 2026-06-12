@@ -15,34 +15,72 @@ pipeline {
     }
 
     stages {
-stage('Testes') {
-    agent {
-        docker {
-            image 'maven:3.9.6-eclipse-temurin-17'
-            args '-v $HOME/.m2:/root/.m2'
-            reuseNode true
-        }
-    }
+        stage('Verificar Versão') {
+            agent none
+            steps {
+                script {
+                    node('built-in') {
+                        checkout scm
+                        def hasParent = sh(
+                            returnStatus: true,
+                            script: 'git rev-parse HEAD~1 >/dev/null 2>&1'
+                        ) == 0
 
-    steps {
-        dir('backend') {
-            sh 'mvn test -B'
-        }
-    }
+                        if (hasParent) {
+                            def prevVersion = sh(
+                                returnStdout: true,
+                                script: "git show HEAD~1:version.yml 2>/dev/null | grep '^version:' | awk '{print \$2}' || echo ''"
+                            ).trim()
+                            def currVersion = sh(
+                                returnStdout: true,
+                                script: "grep '^version:' version.yml | awk '{print \$2}'"
+                            ).trim()
 
-    post {
-        always {
-            junit 'backend/target/surefire-reports/TEST-*.xml'
-
-            archiveArtifacts(
-                artifacts: 'backend/target/surefire-reports/TEST-*.xml',
-                allowEmptyArchive: true
-            )
+                            if (prevVersion == currVersion) {
+                                echo "Versao ${currVersion} nao mudou — build ignorado"
+                                currentBuild.result = 'NOT_BUILT'
+                                env.SKIP_BUILD = 'true'
+                            } else {
+                                echo "Versao atualizada: ${prevVersion} → ${currVersion}"
+                                env.APP_VERSION = currVersion
+                            }
+                        } else {
+                            env.APP_VERSION = sh(
+                                returnStdout: true,
+                                script: "grep '^version:' version.yml | awk '{print \$2}'"
+                            ).trim()
+                            echo "Primeiro build — versao: ${env.APP_VERSION}"
+                        }
+                    }
+                }
+            }
         }
-    }
-}
+
+        stage('Testes') {
+            when { expression { env.SKIP_BUILD != 'true' } }
+            agent {
+                docker {
+                    image 'maven:3.9.6-eclipse-temurin-17'
+                    args '-v $HOME/.m2:/root/.m2'
+                    reuseNode true
+                }
+            }
+            steps {
+                dir('backend') { sh 'mvn test -B' }
+            }
+            post {
+                always {
+                    junit 'backend/target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts(
+                        artifacts: 'backend/target/surefire-reports/TEST-*.xml',
+                        allowEmptyArchive: true
+                    )
+                }
+            }
+        }
 
         stage('Cobertura de Código') {
+            when { expression { env.SKIP_BUILD != 'true' } }
             agent {
                 docker {
                     image 'maven:3.9.6-eclipse-temurin-17'
@@ -63,6 +101,7 @@ stage('Testes') {
         }
 
         stage('SonarQube Analysis') {
+            when { expression { env.SKIP_BUILD != 'true' } }
             agent {
                 docker {
                     image 'maven:3.9.6-eclipse-temurin-17'
@@ -81,6 +120,7 @@ stage('Testes') {
         }
 
         stage('Quality Gate') {
+            when { expression { env.SKIP_BUILD != 'true' } }
             agent none
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -88,7 +128,9 @@ stage('Testes') {
                 }
             }
         }
+
         stage('Build / Empacotamento') {
+            when { expression { env.SKIP_BUILD != 'true' } }
             agent {
                 docker {
                     image 'maven:3.9.6-eclipse-temurin-17'
@@ -106,10 +148,13 @@ stage('Testes') {
             }
         }
 
-        // Só roda quando o merge chegou na main (não em builds de PR)
-        // O quality gate já garante que, se o Sonar falhar, o pipeline para antes daqui
         stage('Publicar Release') {
-            when { branch 'main' }
+            when {
+                allOf {
+                    branch 'main'
+                    expression { env.SKIP_BUILD != 'true' }
+                }
+            }
             environment {
                 GITHUB_CREDS = credentials('github-token')
             }
@@ -122,10 +167,10 @@ stage('Testes') {
             }
             steps {
                 sh '''
-                    TAG_NAME="v${BUILD_NUMBER}"
+                    TAG_NAME="v${APP_VERSION}"
                     JAR="backend/target/${JAR_NAME}"
 
-                    printf '{"tag_name":"%s","target_commitish":"main","name":"%s","body":"Build automatico #%s"}' "${TAG_NAME}" "${TAG_NAME}" "${BUILD_NUMBER}" > /tmp/gh_payload.json
+                    printf '{"tag_name":"%s","target_commitish":"main","name":"%s","body":"Release %s"}' "${TAG_NAME}" "${TAG_NAME}" "${TAG_NAME}" > /tmp/gh_payload.json
 
                     curl -sf -X POST \
                         -H "Authorization: token ${GITHUB_CREDS_PSW}" \
