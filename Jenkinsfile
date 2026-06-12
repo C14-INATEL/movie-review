@@ -56,7 +56,8 @@ stage('Testes') {
             post {
                 always {
                     recordCoverage(tools: [[parser: 'JACOCO',
-                                           pattern: 'backend/target/site/jacoco/jacoco.xml']])
+                                           pattern: 'backend/target/site/jacoco/jacoco.xml']],
+                                  sourceDirectories: [[path: 'backend/src/main/java']])
                 }
             }
         }
@@ -118,7 +119,7 @@ stage('Testes') {
                 }
             }
             steps {
-                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
                     sh '''
                         TAG_NAME="v${BUILD_NUMBER}"
                         JAR="backend/target/${JAR_NAME}"
