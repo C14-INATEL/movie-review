@@ -121,16 +121,19 @@ stage('Testes') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
                     sh '''
+                        set -eu
                         TAG_NAME="v${BUILD_NUMBER}"
                         JAR="backend/target/${JAR_NAME}"
 
-                        RESPONSE=$(curl -sf -X POST \
+                        printf '{"tag_name":"%s","target_commitish":"main","name":"%s","body":"Build automatico #%s"}' "${TAG_NAME}" "${TAG_NAME}" "${BUILD_NUMBER}" > /tmp/gh_payload.json
+
+                        curl -sf -X POST \
                             -H "Authorization: token ${GITHUB_TOKEN}" \
                             -H "Content-Type: application/json" \
-                            -d "{\"tag_name\":\"${TAG_NAME}\",\"target_commitish\":\"main\",\"name\":\"${TAG_NAME}\",\"body\":\"Build automatico #${BUILD_NUMBER}\"}" \
-                            https://api.github.com/repos/${REPO}/releases)
+                            -d @/tmp/gh_payload.json \
+                            "https://api.github.com/repos/${REPO}/releases" > /tmp/gh_release.json
 
-                        RELEASE_ID=$(echo "$RESPONSE" | grep -o '"id":[0-9]*' | head -1 | grep -o '[0-9]*')
+                        RELEASE_ID=$(grep -oE "\"id\":[0-9]+" /tmp/gh_release.json | head -1 | grep -oE "[0-9]+")
 
                         curl -sf -X POST \
                             -H "Authorization: token ${GITHUB_TOKEN}" \
