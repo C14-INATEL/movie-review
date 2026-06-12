@@ -60,4 +60,10 @@ public class UsuarioService {
     public List<Usuario> listarTodos() {
         return new ArrayList<>(usuarios);
     }
+    public Usuario buscarPorEmail(String email) {
+    return usuarios.stream()
+            .filter(u -> u.getEmail().equalsIgnoreCase(email))
+            .findFirst()
+            .orElse(null);
+}
 }

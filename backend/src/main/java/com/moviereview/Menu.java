@@ -2,20 +2,24 @@ package com.moviereview;
 
 import java.util.Scanner;
 
+import com.moviereview.model.Filme;
+import com.moviereview.model.Usuario;
+import com.moviereview.service.AvaliacaoService;
 import com.moviereview.service.FilmeService;
 import com.moviereview.service.UsuarioService;
-
 
 public class Menu {
 
     private Scanner leitor = new Scanner(System.in);
     private FilmeService filmeService;
     private UsuarioService usuarioService;
+    private AvaliacaoService avaliacaoService;
 
     // Construtor necessário para receber o Mock do teste
-    public Menu(FilmeService filmeService, UsuarioService usuarioService) {
+    public Menu(FilmeService filmeService, UsuarioService usuarioService, AvaliacaoService avaliacaoService) {
         this.filmeService = filmeService;
         this.usuarioService = usuarioService;
+        this.avaliacaoService = avaliacaoService;
     }
 
     public void processarOpcao(int opcao) {
@@ -44,14 +48,37 @@ public class Menu {
                 break;
 
             case 3:
+                System.out.println("informe o nome do filme a ser avaliado:");
+                String nomeFilme = leitor.nextLine();
+
+                System.out.println("informe o email do usuario que será utilizado para a avaliação:");
+                email = leitor.nextLine();
+
+                System.out.println("Informe a nota do filme");
+                int notaFilme = Integer.parseInt(leitor.nextLine());
+
+                Usuario usuario = usuarioService.buscarPorEmail(email);
+                if (usuario == null) {
+                    System.out.println("Usuário não encontrado.");
+                    break;
+                }
+                Filme filme = filmeService.buscarPorNome(nomeFilme);            
+
+                if (filme == null) {
+                    System.out.println("Filme não encontrado.");
+                    break;
+                }
+
+                avaliacaoService.avaliar(usuario, filme, notaFilme);
                 break;
 
             case 4:
+                avaliacaoService.exibirRanking(filmeService);
                 break;
 
             case 5:
                 System.out.println("informe o nome do filme:");
-                String nomeFilme = leitor.nextLine();
+                nomeFilme = leitor.nextLine();
 
                 System.out.println("informe o nome do diretor:");
                 String diretor = leitor.nextLine();
@@ -116,8 +143,9 @@ public class Menu {
 
         FilmeService fs = new FilmeService();
         UsuarioService us = new UsuarioService();
+        AvaliacaoService as = new AvaliacaoService(us);
 
-        Menu meuMenu = new Menu(fs, us);
+        Menu meuMenu = new Menu(fs, us, as);
         meuMenu.exibirMenu();
     }
 }
