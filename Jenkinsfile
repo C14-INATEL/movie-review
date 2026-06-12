@@ -122,7 +122,6 @@ stage('Testes') {
             }
             steps {
                 sh '''
-                    set -eu
                     TAG_NAME="v${BUILD_NUMBER}"
                     JAR="backend/target/${JAR_NAME}"
 
@@ -132,15 +131,23 @@ stage('Testes') {
                         -H "Authorization: token ${GITHUB_CREDS_PSW}" \
                         -H "Content-Type: application/json" \
                         -d @/tmp/gh_payload.json \
-                        "https://api.github.com/repos/${REPO}/releases" > /tmp/gh_release.json
+                        "https://api.github.com/repos/${REPO}/releases" > /tmp/gh_release.json \
+                        || { echo "ERRO: falha ao criar release na API do GitHub"; cat /tmp/gh_release.json; exit 1; }
 
-                    RELEASE_ID=$(grep -oE "\"id\": *[0-9]+" /tmp/gh_release.json | head -1 | grep -oE "[0-9]+")
+                    RELEASE_ID=$(grep -o '"id":[^,}]*' /tmp/gh_release.json | head -1 | tr -dc 0-9) || true
+
+                    if [ -z "$RELEASE_ID" ]; then
+                        echo "ERRO: ID da release nao encontrado. Resposta da API:"
+                        cat /tmp/gh_release.json
+                        exit 1
+                    fi
 
                     curl -sf -X POST \
                         -H "Authorization: token ${GITHUB_CREDS_PSW}" \
                         -H "Content-Type: application/java-archive" \
                         --data-binary @"${JAR}" \
-                        "https://uploads.github.com/repos/${REPO}/releases/${RELEASE_ID}/assets?name=movie-review-backend-${TAG_NAME}.jar"
+                        "https://uploads.github.com/repos/${REPO}/releases/${RELEASE_ID}/assets?name=movie-review-backend-${TAG_NAME}.jar" \
+                        || { echo "ERRO: falha ao fazer upload do JAR"; exit 1; }
 
                     echo "Release ${TAG_NAME} publicada: https://github.com/${REPO}/releases/tag/${TAG_NAME}"
                 '''
